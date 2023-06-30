@@ -8,6 +8,7 @@ namespace Data
         public CarsContext(DbContextOptions<CarsContext> options)
         : base(options)
         {
+            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public virtual DbSet<Car> Cars { get; set; }
