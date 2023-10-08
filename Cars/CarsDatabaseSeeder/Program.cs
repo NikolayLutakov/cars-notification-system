@@ -9,8 +9,6 @@ namespace CarsDatabaseSeeder
             var engine = new Engine();
 
             engine.Start();
-
-            // test credetial helper
         }
     }
 }
