@@ -11,11 +11,15 @@ namespace Data.Models
         public int NextChangeMileage { get; set; }
 
         [Required]
+        [MaxLength(20)]
         public string OilMake { get; set; }
 
         [Required]
+        [MaxLength(20)]
         public string OilType { get; set; }
 
         public DateTime ChangedOn { get; set; }
+
+        public Car Car { get; set; }
     }
 }

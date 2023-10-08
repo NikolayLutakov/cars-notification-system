@@ -6,11 +6,49 @@ namespace CarsDatabaseSeeder.Services
     {
         public void Start()
         {
+            var databaseService = new DatabaseService();
+
             this.WriteLegend();
 
-            while (this.ParseInput(Console.ReadLine()) != InputOptions.Exit)
+            var input = this.ParseInput(Console.ReadLine());
+
+            while (input != InputOptions.Exit)
             {
-                Console.WriteLine("Processing...");
+
+                bool result;
+
+                switch (input)
+                {
+                    case InputOptions.Reset_Database:
+                        result =databaseService.ResetDatabase();
+                        break;
+                    case InputOptions.Delete_Database:
+                        result = databaseService.DeleteDatabase();
+                        break;
+                    case InputOptions.Create_Database:
+                        result = databaseService.CreateDatabase();
+                        break;
+                    case InputOptions.Seed_Database:
+                        result = databaseService.SeedDatabase();
+                        break;
+                    default:
+                        return;
+                }
+
+                Console.Clear();
+
+                if (result)
+                    Console.WriteLine($"{input} completed. Press any key to continue.");
+                else
+                    Console.WriteLine($"There was error while performing operation '{input}'. Press any key to continue.");
+
+                Console.ReadKey();
+
+                Console.Clear();
+
+                this.WriteLegend();
+
+                input = this.ParseInput(Console.ReadLine());
             }
         }
 
@@ -48,9 +86,9 @@ namespace CarsDatabaseSeeder.Services
             Console.WriteLine($"Invalid input value! Pease enter number from {(int)InputOptions.Exit} to {(int)InputOptions.Seed_Database}");
 
             var newInput = Console.ReadLine();
-            var reslt = ParseInput(newInput);
+            var result = ParseInput(newInput);
 
-            return reslt;
+            return result;
         }
     }
 }

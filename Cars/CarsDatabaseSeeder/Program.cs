@@ -1,5 +1,4 @@
-﻿using CarsDatabaseSeeder.Enums;
-using CarsDatabaseSeeder.Services;
+﻿using CarsDatabaseSeeder.Services;
 
 namespace CarsDatabaseSeeder
 {

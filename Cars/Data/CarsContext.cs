@@ -8,22 +8,23 @@ namespace Data
         public CarsContext(DbContextOptions<CarsContext> options)
         : base(options)
         {
-            //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
-        public virtual DbSet<Car> Cars { get; set; }
+        public DbSet<Owner> Owners { get; set; }
 
-        public virtual DbSet<CivilInshurance> CivilInshurances { get; set; }
+        public DbSet<Car> Cars { get; set; }
 
-        public virtual DbSet<GearingChange> GearingChanges { get; set; }
+        public DbSet<CivilInsurance> CivilInsurances { get; set; }
 
-        public virtual DbSet<InshurancePremium> InshurancePremiums { get; set; }
+        public DbSet<GearingChange> GearingChanges { get; set; }
 
-        public virtual DbSet<OilChange> OilChanges { get; set; }
+        public DbSet<InsurancePremium> InshurancePremiums { get; set; }
 
-        public virtual DbSet<TechnicalInspection> TechnicalInspections { get; set; }
+        public DbSet<OilChange> OilChanges { get; set; }
 
-        public virtual DbSet<TollTax> TollTaxes { get; set; }
+        public DbSet<TechnicalInspection> TechnicalInspections { get; set; }
+
+        public DbSet<TollTax> TollTaxes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
