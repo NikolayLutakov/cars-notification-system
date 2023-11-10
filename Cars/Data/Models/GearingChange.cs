@@ -11,5 +11,7 @@ namespace Data.Models
         public int? NextChangeMileage { get; set; }
 
         public GearingType Type { get; set; }
+
+        public Car Car { get; set; }
     }
 }

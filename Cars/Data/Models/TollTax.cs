@@ -8,8 +8,6 @@
 
         public DateTime EndDate { get; set; }
 
-        public bool IsActive { get; set; }
-
-        public virtual Car Car { get; set; }
+        public Car Car { get; set; }
     }
 }

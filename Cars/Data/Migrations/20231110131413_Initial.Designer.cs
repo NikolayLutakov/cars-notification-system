@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Migrations
 {
     [DbContext(typeof(CarsContext))]
-    [Migration("20230629125940_Initial")]
+    [Migration("20231110131413_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -43,14 +43,20 @@ namespace Data.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("RegistrationPlates")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
 
                     b.Property<DateTime>("YearOfManifacturing")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("RegistrationPlates")
                         .IsUnique();
@@ -58,7 +64,7 @@ namespace Data.Migrations
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("Data.Models.CivilInshurance", b =>
+            modelBuilder.Entity("Data.Models.CivilInsurance", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,13 +78,10 @@ namespace Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("InshuranceCompany")
+                    b.Property<string>("InsuranceCompany")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -90,7 +93,7 @@ namespace Data.Migrations
 
                     b.HasIndex("CarId");
 
-                    b.ToTable("CivilInshurances");
+                    b.ToTable("CivilInsurances");
                 });
 
             modelBuilder.Entity("Data.Models.GearingChange", b =>
@@ -101,7 +104,7 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CarId")
+                    b.Property<int>("CarId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Mileage")
@@ -120,7 +123,7 @@ namespace Data.Migrations
                     b.ToTable("GearingChanges");
                 });
 
-            modelBuilder.Entity("Data.Models.InshurancePremium", b =>
+            modelBuilder.Entity("Data.Models.InsurancePremium", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,21 +131,18 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DateOfPaynment")
+                    b.Property<DateTime>("DateOfPayment")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("InshuranceId")
+                    b.Property<int>("InsuranceId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsPayed")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("PaynmentPrice")
+                    b.Property<decimal>("PaymentPrice")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InshuranceId");
+                    b.HasIndex("InsuranceId");
 
                     b.ToTable("InshurancePremiums");
                 });
@@ -155,7 +155,7 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CarId")
+                    b.Property<int>("CarId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ChangedOn")
@@ -169,17 +169,45 @@ namespace Data.Migrations
 
                     b.Property<string>("OilMake")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("OilType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CarId");
 
                     b.ToTable("OilChanges");
+                });
+
+            modelBuilder.Entity("Data.Models.Owner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TelegramChatId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Owners");
                 });
 
             modelBuilder.Entity("Data.Models.TechnicalInspection", b =>
@@ -196,9 +224,6 @@ namespace Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -207,6 +232,27 @@ namespace Data.Migrations
                     b.HasIndex("CarId");
 
                     b.ToTable("TechnicalInspections");
+                });
+
+            modelBuilder.Entity("Data.Models.TelegramBot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BotKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TelegramBots");
                 });
 
             modelBuilder.Entity("Data.Models.TollTax", b =>
@@ -223,9 +269,6 @@ namespace Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -236,10 +279,21 @@ namespace Data.Migrations
                     b.ToTable("TollTaxes");
                 });
 
-            modelBuilder.Entity("Data.Models.CivilInshurance", b =>
+            modelBuilder.Entity("Data.Models.Car", b =>
+                {
+                    b.HasOne("Data.Models.Owner", "Owner")
+                        .WithMany("Cars")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Data.Models.CivilInsurance", b =>
                 {
                     b.HasOne("Data.Models.Car", "Car")
-                        .WithMany("CivilInshurances")
+                        .WithMany("CivilInsurances")
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -249,27 +303,35 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Models.GearingChange", b =>
                 {
-                    b.HasOne("Data.Models.Car", null)
+                    b.HasOne("Data.Models.Car", "Car")
                         .WithMany("GearingChanges")
-                        .HasForeignKey("CarId");
-                });
-
-            modelBuilder.Entity("Data.Models.InshurancePremium", b =>
-                {
-                    b.HasOne("Data.Models.CivilInshurance", "Inshurance")
-                        .WithMany("Premiums")
-                        .HasForeignKey("InshuranceId")
+                        .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Inshurance");
+                    b.Navigation("Car");
+                });
+
+            modelBuilder.Entity("Data.Models.InsurancePremium", b =>
+                {
+                    b.HasOne("Data.Models.CivilInsurance", "Insurance")
+                        .WithMany("Premiums")
+                        .HasForeignKey("InsuranceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Insurance");
                 });
 
             modelBuilder.Entity("Data.Models.OilChange", b =>
                 {
-                    b.HasOne("Data.Models.Car", null)
+                    b.HasOne("Data.Models.Car", "Car")
                         .WithMany("OilChanges")
-                        .HasForeignKey("CarId");
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Car");
                 });
 
             modelBuilder.Entity("Data.Models.TechnicalInspection", b =>
@@ -296,7 +358,7 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Data.Models.Car", b =>
                 {
-                    b.Navigation("CivilInshurances");
+                    b.Navigation("CivilInsurances");
 
                     b.Navigation("GearingChanges");
 
@@ -307,9 +369,14 @@ namespace Data.Migrations
                     b.Navigation("TollTaxes");
                 });
 
-            modelBuilder.Entity("Data.Models.CivilInshurance", b =>
+            modelBuilder.Entity("Data.Models.CivilInsurance", b =>
                 {
                     b.Navigation("Premiums");
+                });
+
+            modelBuilder.Entity("Data.Models.Owner", b =>
+                {
+                    b.Navigation("Cars");
                 });
 #pragma warning restore 612, 618
         }

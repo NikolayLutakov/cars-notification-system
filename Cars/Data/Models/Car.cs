@@ -6,7 +6,7 @@ namespace Data.Models
     {
         public Car()
         {
-            this.CivilInshurances = new List<CivilInshurance>();
+            this.CivilInsurances = new List<CivilInsurance>();
             this.TechnicalInspections = new List<TechnicalInspection>();
             this.TollTaxes = new List<TollTax>();
             this.OilChanges = new List<OilChange>();
@@ -26,17 +26,20 @@ namespace Data.Models
         public DateTime YearOfManifacturing { get; set; }
 
         [Required]
+        [MaxLength(15)]
         public string RegistrationPlates { get; set; }
 
-        public virtual ICollection<CivilInshurance> CivilInshurances { get; set; }
+        public ICollection<CivilInsurance> CivilInsurances { get; set; }
 
-        public virtual ICollection<TechnicalInspection> TechnicalInspections { get; set; }
+        public ICollection<TechnicalInspection> TechnicalInspections { get; set; }
 
-        public virtual ICollection<TollTax> TollTaxes { get; set; }
+        public ICollection<TollTax> TollTaxes { get; set; }
 
-        public virtual ICollection<OilChange> OilChanges { get; set; }
+        public ICollection<OilChange> OilChanges { get; set; }
 
-        public virtual ICollection<GearingChange> GearingChanges { get; set; }
+        public ICollection<GearingChange> GearingChanges { get; set; }
+        
+        public Owner Owner { get; set; }
 
     }
 }
