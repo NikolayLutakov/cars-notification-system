@@ -8,16 +8,18 @@ namespace CarsAPI.Services.BuisnesServices
     {
         private readonly ILogger logger;
         private readonly IHttpClientFactory httpClientFactory;
+        private readonly ITelegramNotificationDataService telegramNotificationDataService;
 
-        public TelegramMessageService(IHttpClientFactory httpClientFactory, ILogger<TelegramMessageService> logger)
+        public TelegramMessageService(IHttpClientFactory httpClientFactory, ILogger<TelegramMessageService> logger, ITelegramNotificationDataService telegramNotificationDataService)
         {
             this.httpClientFactory = httpClientFactory;
             this.logger = logger;
+            this.telegramNotificationDataService = telegramNotificationDataService;
         }
 
         public async Task SendMessage(string message, string chatId)
         {
-            var botKey = "";
+            var botKey = this.telegramNotificationDataService.GetBotKey();
 
             var address = string.Format(CarServiceConstants.NotificationAddressTemplate, botKey, chatId, message);
 

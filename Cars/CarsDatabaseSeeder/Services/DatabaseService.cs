@@ -1,6 +1,9 @@
-﻿using Data;
+﻿using CarsDatabaseSeeder.Models;
+using Data;
+using Data.Enums;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace CarsDatabaseSeeder.Services
 {
@@ -10,7 +13,10 @@ namespace CarsDatabaseSeeder.Services
         public DatabaseService()
         {
             var optionsBuilder = new DbContextOptionsBuilder<CarsContext>();
-            optionsBuilder.UseNpgsql("Server=localhost;Port=5432;Database=CarsDatabase;User ID=postgres;password=Qwerty;Pooling=true");
+
+            var connectionString = this.ReadConnectionString();
+
+            optionsBuilder.UseNpgsql(connectionString);
 
             this.context = new CarsContext(optionsBuilder.Options);
         }
@@ -95,29 +101,113 @@ namespace CarsDatabaseSeeder.Services
 
         private void Seed()
         {
-            var oner = new Owner()
+            var botKey = this.ReadBotKeyFile();
+
+            var bot = new TelegramBot()
             {
-                Name = "Test Owner",
-                TelegramChatId = "",
+                BotKey = botKey,
+                Name = "Telegram Notifier Bot",
             };
 
-            var car = new Car()
-            {
-                Make = "Lada",
-                Model = "Niva",
-                RegistrationPlates = "XX1234XX",
-                Owner = oner,
-            };
+            var ownersDTOs = this.ReadUsersConfigFile();
 
-            var technicalInspection = new TechnicalInspection()
-            {
-                StartDate = DateTime.UtcNow.AddDays(10),
-                EndDate = DateTime.UtcNow.AddDays(3),
-                Car = car,
-            };
+            var ownersToAdd = new List<Owner>();
 
-            this.context.Add(technicalInspection);
-            this.context.SaveChanges();
+            foreach (var ownerDTO in ownersDTOs)
+            {
+                var owner = new Owner()
+                {
+                    Name = ownerDTO.Name,
+                    Email = ownerDTO.Email,
+                    TelegramChatId = ownerDTO.TelegramChatId,
+                    Cars = ownerDTO.Cars.Select(carDTO => new Car()
+                    {
+                        Make = carDTO.Make,
+                        Model = carDTO.Model,
+                        RegistrationPlates = carDTO.RegistrationPlates,
+                        YearOfManifacturing = DateTime.SpecifyKind(DateTime.Parse(carDTO.YearOfManifacturing), DateTimeKind.Utc),
+                        CivilInsurances = carDTO.CivilInsurances.Select(civilInsuranceDTO => new CivilInsurance()
+                        {
+                            InsuranceCompany = civilInsuranceDTO.InsuranceCompany,
+                            Price = civilInsuranceDTO.Price,
+                            StartDate = DateTime.SpecifyKind(DateTime.Parse(civilInsuranceDTO.StartDate), DateTimeKind.Utc),
+                            EndDate = DateTime.SpecifyKind(DateTime.Parse(civilInsuranceDTO.EndDate), DateTimeKind.Utc),
+                            Premiums = civilInsuranceDTO.Premiums.Select(premiumDTO => new InsurancePremium()
+                            {
+                                PaymentPrice = premiumDTO.PaymentPrice,
+                                DateOfPayment = DateTime.SpecifyKind(DateTime.Parse(premiumDTO.DateOfPayment), DateTimeKind.Utc)
+                            }).ToList()
+                        }).ToList(),
+                        GearingChanges = carDTO.GearingChanges.Select(gearingChangeDTO => new GearingChange()
+                        {
+                            Mileage = gearingChangeDTO.Mileage,
+                            NextChangeMileage = gearingChangeDTO.NextChangeMileage,
+                            Type = (GearingType)gearingChangeDTO.Type
+                        }).ToList(),
+                        OilChanges = carDTO.OilChanges.Select(oilChangeDTO => new OilChange()
+                        {
+                            OilMake = oilChangeDTO.OilMake,
+                            NextChangeMileage = oilChangeDTO.NextChangeMileage,
+                            ChangedOn = DateTime.SpecifyKind(DateTime.Parse(oilChangeDTO.ChangedOn), DateTimeKind.Utc),
+                            Mileage = oilChangeDTO.Mileage,
+                            OilType = oilChangeDTO.OilType
+                        }).ToList(),
+                        TechnicalInspections = carDTO.TechnicalInspections.Select(technicalInspectionDTO => new TechnicalInspection()
+                        {
+                            StartDate = DateTime.SpecifyKind(DateTime.Parse(technicalInspectionDTO.StartDate), DateTimeKind.Utc),
+                            EndDate = DateTime.SpecifyKind(DateTime.Parse(technicalInspectionDTO.EndDate), DateTimeKind.Utc)
+                        }).ToList(),
+                        TollTaxes = carDTO.TollTaxes.Select(tollTaxDTO => new TollTax()
+                        {
+                            StartDate = DateTime.SpecifyKind(DateTime.Parse(tollTaxDTO.StartDate), DateTimeKind.Utc),
+                            EndDate = DateTime.SpecifyKind(DateTime.Parse(tollTaxDTO.EndDate), DateTimeKind.Utc)
+                        }).ToList(),
+                    }).ToList(),
+                };
+
+                ownersToAdd.Add(owner);
+            }
+
+            this.context.AddRange(ownersToAdd);
+            this.context.Add(bot);
+            try
+            {
+
+                this.context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        private string ReadConnectionString()
+        {
+            var path = (string)Program.Configs["DbConnectionString"];
+
+            var connectionString = File.ReadAllText(path);
+
+            return connectionString;
+        }
+
+        private string ReadBotKeyFile()
+        {
+            var path = (string)Program.Configs["TelegramBotConfigFilePath"];
+
+            var botKey = File.ReadAllText(path);
+
+            return botKey;
+        }
+
+        private List<OwnerDTO> ReadUsersConfigFile()
+        {
+            var path = (string)Program.Configs["UsersFilePath"];
+
+            var usersString = File.ReadAllText(path);
+
+            var users = JsonConvert.DeserializeObject<List<OwnerDTO>>(usersString);
+
+            return users;
         }
     }
 }

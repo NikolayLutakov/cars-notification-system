@@ -1,0 +1,5 @@
+﻿{
+  "UsersFilePath": "E:\\car-system-configs\\users.json",
+  "TelegramBotConfigFilePath": "E:\\car-system-configs\\botKey.txt",
+  "DbConnectionString": "E:\\car-system-configs\\dbConnectionString.txt"
+}

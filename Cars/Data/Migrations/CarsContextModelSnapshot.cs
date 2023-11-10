@@ -128,16 +128,13 @@ namespace Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DateOfPaynment")
+                    b.Property<DateTime>("DateOfPayment")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("InsuranceId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsPayed")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("PaynmentPrice")
+                    b.Property<decimal>("PaymentPrice")
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
@@ -232,6 +229,27 @@ namespace Data.Migrations
                     b.HasIndex("CarId");
 
                     b.ToTable("TechnicalInspections");
+                });
+
+            modelBuilder.Entity("Data.Models.TelegramBot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BotKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TelegramBots");
                 });
 
             modelBuilder.Entity("Data.Models.TollTax", b =>

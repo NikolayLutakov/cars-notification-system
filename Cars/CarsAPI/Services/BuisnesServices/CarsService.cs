@@ -43,7 +43,6 @@ namespace CarsAPI.Services.BuisnesServices
             if(insuranceResult.Data != null)
                 results.Add(insuranceResult);
 
-
             var technicalInspectionResult = this.CheckTechnicalInspection(car.TechnicalInspections);
             
             if (technicalInspectionResult.Data != null)
@@ -96,22 +95,22 @@ namespace CarsAPI.Services.BuisnesServices
 
             var lastInsurance = sortedInsurances.First();
 
-            var notPayedPremiums = lastInsurance.Premiums.Where(x => !x.IsPayed).OrderBy(x => x.DateOfPaynment);
+            var notPayedPremiums = lastInsurance.Premiums.Where(x => !x.IsPayed).OrderBy(x => x.DateOfPayment);
 
             if (notPayedPremiums.Any())
             {
                 var upcomingPremium = notPayedPremiums.First();
 
-                var daysDiff = (int)Math.Round((upcomingPremium.DateOfPaynment - now).TotalDays);
+                var daysDiff = (int)Math.Round((upcomingPremium.DateOfPayment - now).TotalDays);
 
                 if(daysDiff <= 7)
                 {
                     var resultData = new CheckResultData()
                     {
-                        DueDate = upcomingPremium.DateOfPaynment,
+                        DueDate = upcomingPremium.DateOfPayment,
                         DaysLeft = daysDiff,
                         IsPremium = true,
-                        PaymentPrice = upcomingPremium.PaynmentPrice
+                        PaymentPrice = upcomingPremium.PaymentPrice
                     };
 
                     result.Data = resultData;
@@ -153,7 +152,6 @@ namespace CarsAPI.Services.BuisnesServices
 
             if (daysDiff <= 7)
             {
-
                 var resultData = new CheckResultData()
                 {
                     DueDate = lastInspection.EndDate,

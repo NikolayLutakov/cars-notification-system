@@ -35,8 +35,6 @@ namespace CarsDatabaseSeeder.Services
                         return;
                 }
 
-                Console.Clear();
-
                 if (result)
                     Console.WriteLine($"{input} completed. Press any key to continue.");
                 else

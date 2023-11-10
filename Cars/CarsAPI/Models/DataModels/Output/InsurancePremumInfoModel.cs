@@ -2,10 +2,10 @@
 {
     public class InsurancePremumInfoModel
     {
-        public DateTime DateOfPaynment { get; set; }
+        public DateTime DateOfPayment { get; set; }
 
-        public decimal PaynmentPrice { get; set; }
+        public decimal PaymentPrice { get; set; }
 
-        public bool IsPayed => DateTime.UtcNow < DateOfPaynment;
+        public bool IsPayed => DateTime.UtcNow > DateOfPayment;
     }
 }

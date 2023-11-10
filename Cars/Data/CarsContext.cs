@@ -26,6 +26,8 @@ namespace Data
 
         public DbSet<TollTax> TollTaxes { get; set; }
 
+        public DbSet<TelegramBot> TelegramBots { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Car>(car =>

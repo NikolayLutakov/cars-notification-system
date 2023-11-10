@@ -8,8 +8,9 @@ using CarsAPI.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers().AddNewtonsoftJson();
-builder.Services.AddEndpointsApiExplorer();
+
+//builder.Services.AddControllers().AddNewtonsoftJson();
+//builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<CarsContext>(opt =>
 {
@@ -21,6 +22,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<ICarsDataService, CarsDataService>();
+builder.Services.AddScoped<ITelegramNotificationDataService, TelegramNotificationDataService>();
 builder.Services.AddScoped<ICarsService, CarsService>();
 builder.Services.AddScoped<ITelegramMessageService, TelegramMessageService>();
 
@@ -30,10 +32,10 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
-app.MapControllers();
+//app.MapControllers();
 
 app.Run();

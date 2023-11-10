@@ -6,9 +6,9 @@ namespace Data.Models
     {
         public int Id { get; set; }
 
-        public DateTime DateOfPaynment { get; set; }
+        public DateTime DateOfPayment { get; set; }
 
-        public decimal PaynmentPrice { get; set; }
+        public decimal PaymentPrice { get; set; }
 
         public CivilInsurance Insurance { get; set; }
     }
