@@ -12,9 +12,16 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddControllers().AddNewtonsoftJson();
 //builder.Services.AddEndpointsApiExplorer();
 
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+
 builder.Services.AddDbContext<CarsContext>(opt =>
 {
-    opt.UseNpgsql("Server=localhost;Port=5432;Database=CarsDatabase;User ID=postgres;password=Qwerty;Pooling=true");
+    opt.UseNpgsql(connectionString);
 });
 
 builder.Services.AddAutoMapper(typeof(Program));

@@ -1,11 +1,11 @@
-﻿using CarsAPI.Services.Interfaces;
+﻿using CarsAPI.Constants;
+using CarsAPI.Services.Interfaces;
 using Cronos;
 
 namespace CarsAPI.Services.HostedServices
 {
     public class MonitorCarsHostedService : IHostedService
-    {
-        private const string cron = "* * * * *";
+    {  
         private readonly CronExpression cronExpression;
         private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
@@ -14,8 +14,10 @@ namespace CarsAPI.Services.HostedServices
         {
             this.logger = logger;
             this.serviceProvider = serviceProvider;
-            this.cronExpression = CronExpression.Parse(cron);
 
+            var cron = Environment.GetEnvironmentVariable("MONITOR_CRON") ?? CarsMonitorConstants.DefaultCron;
+
+            this.cronExpression = CronExpression.Parse(cron);
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -38,8 +40,9 @@ namespace CarsAPI.Services.HostedServices
             {
                 try
                 {
-                    carsService.CheckCarsTaxesAsync();
-                    this.logger.LogInformation("Cars check started.");
+                    this.logger.LogInformation("Cars check starteding.");
+                    await carsService.CheckCarsTaxesAsync();
+                    this.logger.LogInformation("Cars check finished.");
                 }
                 catch (Exception ex) 
                 {
