@@ -17,7 +17,7 @@ namespace CarsAPI.Services.DataServices
         {
             //Only one bot in db.
 
-            var key = this.context.TelegramBots.FirstOrDefault().BotKey;
+            var key = this.context.TelegramBots.OrderBy(x => x.Id).FirstOrDefault().BotKey;
 
             var result = $"bot{key}";
 

@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  cars-monitor-system:
+    image: docker.io/library/cars-monitor-system
+    container_name: cars-monitor-system-container_name
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DB_CONNECTION=Server=host.docker.internal;Port=5432;Database=CarsDatabase;User ID=postgres;password=Qwerty;Pooling=true
+      - MONITOR_CRON=*/2 * * * *

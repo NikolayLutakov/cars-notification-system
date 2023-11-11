@@ -36,13 +36,23 @@ namespace CarsAPI.Services.HostedServices
             var scope = this.serviceProvider.CreateScope();
             var carsService = scope.ServiceProvider.GetRequiredService<ICarsService>();
 
+            var firstRunFlag = true;
+
             while (!cancellationToken.IsCancellationRequested) 
             {
                 try
                 {
-                    this.logger.LogInformation("Cars check starteding.");
-                    await carsService.CheckCarsTaxesAsync();
-                    this.logger.LogInformation("Cars check finished.");
+                    if (!firstRunFlag)
+                    {
+                        this.logger.LogInformation("Cars check starteding.");
+                        await carsService.CheckCarsTaxesAsync();
+                        this.logger.LogInformation("Cars check finished.");
+                    }
+                    else
+                    {
+                        this.logger.LogInformation("First run check skipped.");
+                        firstRunFlag = false;
+                    }
                 }
                 catch (Exception ex) 
                 {
