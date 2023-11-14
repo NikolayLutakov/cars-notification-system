@@ -10,6 +10,8 @@ namespace CarsAPI.Services.HostedServices
         private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
 
+        private DateTime nextExecution;
+
         public MonitorCarsHostedService(ILogger<MonitorCarsHostedService> logger, IServiceProvider serviceProvider)
         {
             this.logger = logger;
@@ -18,6 +20,8 @@ namespace CarsAPI.Services.HostedServices
             var cron = Environment.GetEnvironmentVariable("MONITOR_CRON") ?? CarsMonitorConstants.DefaultCron;
 
             this.cronExpression = CronExpression.Parse(cron);
+
+            this.nextExecution = cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -36,41 +40,47 @@ namespace CarsAPI.Services.HostedServices
             var scope = this.serviceProvider.CreateScope();
             var carsService = scope.ServiceProvider.GetRequiredService<ICarsService>();
 
-            var firstRunFlag = true;
-
             while (!cancellationToken.IsCancellationRequested) 
             {
                 try
                 {
-                    if (!firstRunFlag)
+                    if(DateTime.UtcNow >= nextExecution)
                     {
-                        this.logger.LogInformation("Cars check starteding.");
+                        this.logger.LogInformation("Cars check starting.");
+
                         await carsService.CheckCarsTaxesAsync();
+
                         this.logger.LogInformation("Cars check finished.");
+
+                        this.nextExecution = this.cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
+
+                        this.logger.LogInformation($"Next execution scheduled for: {this.nextExecution}");
                     }
-                    else
-                    {
-                        this.logger.LogInformation("First run check skipped.");
-                        firstRunFlag = false;
-                    }
+                    
                 }
                 catch (Exception ex) 
                 {
+                    this.nextExecution = this.cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
+
                     this.logger.LogError(ex.Message);
                     this.logger.LogError(ex.StackTrace);
                 }
 
-                await Task.Delay(this.CalculateDelay(), cancellationToken);
+                var delay = this.CalculateTimeUntilNextHour(DateTime.UtcNow);
+
+                this.logger.LogInformation($"Next iteration delay: {delay}");
+
+                await Task.Delay(delay, cancellationToken);
             }
         }
 
-        private TimeSpan CalculateDelay()
+        private TimeSpan CalculateTimeUntilNextHour(DateTime currentTime)
         {
-            var now = DateTime.UtcNow;
-            var nextExecution = cronExpression.GetNextOccurrence(now).Value;
-            var delay = nextExecution - now;
+            var nextHour = currentTime.AddHours(1).Date.AddHours(currentTime.Hour + 1);
 
-            return delay;
+            var timeUntilNextHour = nextHour - currentTime;
+
+            return timeUntilNextHour;
         }
     }
 }
