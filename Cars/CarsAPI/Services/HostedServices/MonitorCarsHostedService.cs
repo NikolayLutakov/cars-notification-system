@@ -1,27 +1,22 @@
 ﻿using CarsAPI.Constants;
 using CarsAPI.Services.Interfaces;
-using Cronos;
 
 namespace CarsAPI.Services.HostedServices
 {
     public class MonitorCarsHostedService : IHostedService
-    {  
-        private readonly CronExpression cronExpression;
+    {
         private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
-
-        private DateTime nextExecution;
+        private readonly int executionHour;
 
         public MonitorCarsHostedService(ILogger<MonitorCarsHostedService> logger, IServiceProvider serviceProvider)
         {
             this.logger = logger;
             this.serviceProvider = serviceProvider;
 
-            var cron = Environment.GetEnvironmentVariable("MONITOR_CRON") ?? CarsMonitorConstants.DefaultCron;
+            var envHour = Environment.GetEnvironmentVariable("EXECUTION_HOUR");
 
-            this.cronExpression = CronExpression.Parse(cron);
-
-            this.nextExecution = cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
+            executionHour = envHour != null ? int.Parse(envHour) : CarsMonitorConstants.DefaultExecutionTime;
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -40,11 +35,13 @@ namespace CarsAPI.Services.HostedServices
             var scope = this.serviceProvider.CreateScope();
             var carsService = scope.ServiceProvider.GetRequiredService<ICarsService>();
 
-            while (!cancellationToken.IsCancellationRequested) 
+            var firstRun = true;
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                try
+                if (!firstRun)
                 {
-                    if(DateTime.UtcNow >= nextExecution)
+                    try
                     {
                         this.logger.LogInformation("Cars check starting.");
 
@@ -52,35 +49,36 @@ namespace CarsAPI.Services.HostedServices
 
                         this.logger.LogInformation("Cars check finished.");
 
-                        this.nextExecution = this.cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
-
-                        this.logger.LogInformation($"Next execution scheduled for: {this.nextExecution}");
                     }
-                    
-                }
-                catch (Exception ex) 
-                {
-                    this.nextExecution = this.cronExpression.GetNextOccurrence(DateTime.UtcNow).Value;
-
-                    this.logger.LogError(ex.Message);
-                    this.logger.LogError(ex.StackTrace);
+                    catch (Exception ex)
+                    {
+                        this.logger.LogError(ex.Message);
+                        this.logger.LogError(ex.StackTrace);
+                    }
                 }
 
-                var delay = this.CalculateTimeUntilNextHour(DateTime.UtcNow);
+                var delay = this.CalculateDelay();
 
-                this.logger.LogInformation($"Next iteration delay: {delay}");
+                this.logger.LogInformation($"Next execution scheduled for: {DateTime.UtcNow.AddMilliseconds(delay)}");
+                this.logger.LogInformation($"Next iteration delay: {TimeSpan.FromMilliseconds(delay)}");
+
+                firstRun = false;
 
                 await Task.Delay(delay, cancellationToken);
             }
         }
 
-        private TimeSpan CalculateTimeUntilNextHour(DateTime currentTime)
+        private int CalculateDelay()
         {
-            var nextHour = currentTime.AddHours(1).Date.AddHours(currentTime.Hour + 1);
+            var now = DateTime.UtcNow;
 
-            var timeUntilNextHour = nextHour - currentTime;
+            var nextExecutionDate = DateTime.UtcNow.AddDays(1).Date;
 
-            return timeUntilNextHour;
+            var nextExecutionDateTime = nextExecutionDate.AddHours(executionHour);
+
+            var delay = (int)(nextExecutionDateTime - now).TotalMilliseconds;
+
+            return delay;
         }
     }
 }
