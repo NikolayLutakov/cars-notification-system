@@ -2,6 +2,6 @@
 {
     public class CarsMonitorConstants
     {
-        public const string DefaultCron = "0 8 * * *";
+        public const int DefaultExecutionTime = 10;
     }
 }
