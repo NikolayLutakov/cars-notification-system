@@ -4,6 +4,7 @@ WORKDIR /app
 EXPOSE 80
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV ASPNETCORE_URLS=http://+:80
 
 RUN apk update && apk add --no-cache icu-libs
 
